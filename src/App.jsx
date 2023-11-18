@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import {useState} from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const startingDate = /* todo */;
+  const expectedEndingDate = /* todo */;
+
+  const workingDuration = /* todo */;
+  const breakDuration = /* todo */;
+  const roundsNumber = /* todo */;
+
+  /* todo: workingDuration render */
+  /* todo: breakDuration render */
+  /* todo: roundsNumber render */
+
+  /* todo: remainingTime render */
+
+  const startTimer = (event) => {
+    /* todo: 
+         - initialize every constants
+         - check bad behaviours (e.g. negative workingDuration, breakDuration, roundsNumber...)
+         - once everything is good: starting timer and
+         - ...
+    */
+
+    stopTime = new Date();
+
+    console.log(stopTime);
+    stopTime.setMinutes(stopTime.getMinutes() + 5);
+    console.log(stopTime);
+
+    setInterval(() => {
+      setText(stopTime.getMinutes());
+    }, 1000);
+
+    event.preventDefault();
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <form>
+        <h2>{text}</h2>
+        <input id="text" type="text"/>
+        <button onClick={handleClick}>Submit</button>
+      </form>
+    </div>
+  );
 }
 
-export default App
+export default App;
