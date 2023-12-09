@@ -1,6 +1,14 @@
 import {useState} from 'react'
 import './App.css'
 
+// 17h50 : initial date
+// 17h55 : stop
+// 18h00 : resume
+// (18h00 - 17h50) = 10min : current (this is not good)
+
+// fuckMaxwell = (18h00 - 17h50)
+// fuckMaxwell - (18h00 - 17h50) = 5 min : correct
+
 function App() {
   const startingDate = /* todo */;
   const expectedEndingDate = /* todo */;
