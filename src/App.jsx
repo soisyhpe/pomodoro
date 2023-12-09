@@ -1,5 +1,6 @@
-import {useState} from 'react'
+import {useState, useRef} from 'react'
 import './App.css'
+[]=useRef();
 
 // 17h50 : initial date
 // 17h55 : stop
