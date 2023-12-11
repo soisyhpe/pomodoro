@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Dopis';
+    src: url('./fonts/dopis/dopis_black.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Dopis';
+    src: url('./fonts/dopis/dopis_bold.otf') format('opentype');
+    /* Add more src declarations if necessary for different font file formats */
+    font-weight: bold;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Dopis', sans-serif;
+}
+
+/*h1 {
+    font-family: "Dopis Bold", sans-serif;
+}
+
+p {
+    font-family: "Dopis Black", sans-serif;
+}
+
+button {
+    font-family: "Dopis Bold", sans-serif;
+}*/
