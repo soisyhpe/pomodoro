@@ -1,5 +1,5 @@
 import './timer.css';
-import {useRef, useState} from 'react';
+import { useRef, useState } from 'react';
 
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
@@ -7,19 +7,18 @@ const formatTime = (time) => {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-const Button = ({onClick, label, isDisabled}) => (
+const Button = ({ onClick, label, isDisabled }) => (
   <button
     onClick={onClick}
-    className={`w-full h-12 font-bold rounded-full text-4xl p-0 mr-1 ${
-      isDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-900 text-white cursor-pointer'
-    }`}
+    className={`w-full h-12 font-bold rounded-full text-4xl p-0 mr-1 ${isDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-900 text-white cursor-pointer'
+      }`}
     disabled={isDisabled}
   >
     {label}
   </button>
 );
 
-const ConfigTimerSection = ({title, getter, setter, maxValue, minValue, isTimer}) => {
+const ConfigTimerSection = ({ title, getter, setter, maxValue, minValue, isTimer }) => {
   const isMinValueReached = getter <= (isTimer ? minValue * 60 : minValue);
   const isMaxValueReached = getter >= (isTimer ? maxValue * 60 : maxValue);
 
@@ -57,7 +56,7 @@ const ConfigTimerSection = ({title, getter, setter, maxValue, minValue, isTimer}
   );
 };
 
-const TimerSection = ({title, getter, isTimer}) => {
+const TimerSection = ({ title, getter, isTimer }) => {
   return (
     <div className='w-72 mb-10'>
       <h1 className='font-black text-4xl'>{title}</h1>
@@ -67,56 +66,92 @@ const TimerSection = ({title, getter, isTimer}) => {
 }
 
 function Timer() {
-  const [workingTime, setWorkingTime] = useState(25 * 60);
+  const [workingTime, setWorkingTime] = useState(5);
   const [breakDuration, setBreakDuration] = useState(5 * 60);
-  const [round, setRound] = useState(4);
-
-  const [remainingTime, setRemainingTime] = useState(25 * 60)
-  const [nextBreakDuration, setNextBreakDuration] = useState(5 * 60)
-  const [roundCount, setRoundCount] = useState(1)
+  const [round, setRound] = useState(3);
+  const [breaker,setBreaker]= useState(false)
 
   const [started, setStarted] = useState(false);
 
   const [delayedStart, setDelayedStart] = useState(false);
   const [countdown, setCountdown] = useState(3);
 
+  const [breakTime,setBreakTime]=useState(null);
+
+  const [startTime, setStartTime] = useState(null);
+
   const startTimer = () => {
-    setStarted(!started);
+    //IDK WHAT this is for 
+    //setStarted(!started);
 
     // Add a 3-second delay before starting the timer
     if (!started) {
       setDelayedStart(true);
-
+  
       const countdownInterval = setInterval(() => {
         setCountdown((prevCountdown) => {
           if (prevCountdown === 1) {
             clearInterval(countdownInterval);
             setDelayedStart(false);
-
+      
             // Todo: Timer logic here
             setStarted(true);
+            setStartTime(workingTime);
+      
+            const timerInterval = setInterval(() => {
+              setStartTime((prevTime) => {
+                if (prevTime <= 0) {
+                  clearInterval(timerInterval);
+                  setBreaker(true);
+                  setRound(round-1);
+                  return 0;
+                }
+                return (prevTime - 1/2);
+              });
+            }, 1000);
           }
           return prevCountdown - 1;
         });
       }, 1000);
-    } else {
-
-      // Todo: Timer logic here
-      setStarted(true);
+      
+    } if(started) {
+      console.log('Yessaie')
+      const countdownInterval = setInterval(() => {
+        setCountdown((prevCountdown) => {
+          if (prevCountdown === 1) {
+            clearInterval(countdownInterval);
+            setDelayedStart(false);
+      
+            // Todo: Timer logic here
+            setBreakTime(breakDuration);
+      
+            const timerInterval = setInterval(() => {
+              setStartTime((prevTime) => {
+                if (prevTime <= 0) {
+                  clearInterval(timerInterval);
+                  setBreaker(false);
+                  return 0;
+                }
+                return (prevTime - 1/2);
+              });
+            }, 1000);
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
     }
   };
+  
 
   return (
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
-
-
 
       {delayedStart ? (
         <p className='font-bold text-8xl mt-3'>
           {countdown}
         </p>
       ) : (
-        <>
+        <> 
           {!started && (
             <>
               <ConfigTimerSection
@@ -139,29 +174,29 @@ function Timer() {
                 />
               )}
 
-              <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={4} minValue={1} isTimer={false}/>
+              <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
             </>
           )}
 
-          {started && (
-            <>
+          {started && !breaker &&(
               <TimerSection
                 title='Remaining time'
-                getter={remainingTime}
+                getter={startTime}
                 isTimer={true}
-              />
-              {/*<TimerSection
-                title='Next break duration'
-                getter={nextBreakDuration}
-                isTimer={true}
-              />
+              />)}
+          {started && breaker &&(
               <TimerSection
-                title='Round count'
+                title='Break time left'
+                getter={breakDuration}
+                isTimer={true}
+              />)}
+          {started && breaker && (
+              <TimerSection
+                title='Rounds left'
                 getter={round}
                 isTimer={false}
-              />*/}
-            </>
-          )}
+              />)}
+
 
           <div className='w-72'>
             <button
