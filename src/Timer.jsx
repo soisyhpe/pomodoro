@@ -76,7 +76,7 @@ function Timer() {
   const [delayedStart, setDelayedStart] = useState(false);
   const [countdown, setCountdown] = useState(3);
 
-  const [breakTime,setBreakTime]=useState(null);
+  const [breakTime,setBreakTime]=useState(breakDuration);
 
   const [startTime, setStartTime] = useState(null);
 
@@ -98,47 +98,7 @@ function Timer() {
             setStarted(true);
             setStartTime(workingTime);
       
-            const timerInterval = setInterval(() => {
-              setStartTime((prevTime) => {
-                if (prevTime <= 0) {
-                  clearInterval(timerInterval);
-                  setBreaker(true);
-                  setRound(round-1);
-                  return 0;
-                }
-                return (prevTime - 1/2);
-              });
-            }, 1000);
-          }
-          return prevCountdown - 1;
-        });
-      }, 1000);
-      
-    } if(started) {
-      console.log('Yessaie')
-      const countdownInterval = setInterval(() => {
-        setCountdown((prevCountdown) => {
-          if (prevCountdown === 1) {
-            clearInterval(countdownInterval);
-            setDelayedStart(false);
-      
-            // Todo: Timer logic here
-            setBreakTime(breakDuration);
-      
-            const timerInterval = setInterval(() => {
-              setStartTime((prevTime) => {
-                if (prevTime <= 0) {
-                  clearInterval(timerInterval);
-                  setBreaker(false);
-                  return 0;
-                }
-                return (prevTime - 1/2);
-              });
-            }, 1000);
-          }
-          return prevCountdown - 1;
-        });
-      }, 1000);
+            
     }
   };
   
@@ -187,7 +147,7 @@ function Timer() {
           {started && breaker &&(
               <TimerSection
                 title='Break time left'
-                getter={breakDuration}
+                getter={breakTime}
                 isTimer={true}
               />)}
           {started && breaker && (
