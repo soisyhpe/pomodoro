@@ -1,5 +1,5 @@
 import './timer.css';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
@@ -66,142 +66,183 @@ const TimerSection = ({ title, getter, isTimer }) => {
 }
 
 function Timer() {
-  const [workingTime, setWorkingTime] = useState(10);
-  const [breakDuration, setBreakDuration] = useState(90);
+
+  ///User input 
+  const [workingTime, setWorkingTime] = useState(5);
+  const [breakDuration, setBreakDuration] = useState(5);
   const [round, setRound] = useState(3);
-  const [breaker, setBreaker] = useState(false)
 
+  //states
+  const [unstarted, setUnstarted] = useState(true);
   const [started, setStarted] = useState(false);
+  const [paused, setPaused] = useState(false);
 
-  const [delayedStart, setDelayedStart] = useState(false);
-  const [countdown, setCountdown] = useState(2);
+  //Retrieval of user input and use of it
+  const [remainingTime, setRemainingTime] = useState(workingTime);
+  const [remainingBreakTime, setRemainingBreakTime] = useState(breakDuration);
+  const [remainingRounds, setRemainingRounds] = useState(round);
 
-  const [breakTime, setBreakTime] = useState(breakDuration);
-
-  const [startTime, setStartTime] = useState(workingTime);
-
-  const [remainingTime, setRemainingTime] = useState(2 * 60)
-  const [roundsLeft, setRoundsLeft] = useState(round)
-
+  //BreakTime && delayedStart
+  const [isBreak, setIsBreak] = useState(false);
+  const [isDelayed, setIsDelayed] = useState(false);
+  const [countdown, setCountdown] = useState(3)
 
   const startTimer = () => {
-    //IDK WHAT this is for 
-    //setStarted(!started);
+    setIsDelayed(true);
+  }
 
-    // Add a 3-second delay before starting the timer
-    setDelayedStart(true);
-
-    //begining countdown 
-    const countDownId = setInterval(() => {
-      setCountdown((count) => {
-        if (count <= 1) {
-          setDelayedStart(false);
-          setStarted(true);
-          clearInterval(countDownId);
-          workingId()
-        }
-        return --count;
-      })
-    }, 1000)
-    console.log("cerveau jusqu'au fond de mon être ")
-    ///beggining workTime
-    function workingId() {
-      setRemainingTime(workingTime)
-      setInterval(() => {
-        setStartTime((nwar) => {
-          if (nwar <= 1) {
-            setBreaker(true);
-            clearInterval(workingId);
-            BreakId();
+  useEffect(() => {
+    if (isDelayed) {
+      const isDelayedIntervalId = setInterval(() => {
+        setCountdown((count) => {
+          if (count <= 0) {
+            setIsDelayed(false)
+            setUnstarted(false);
+            setStarted(true);
+            clearInterval(isDelayedIntervalId);
           }
-          return --nwar;
+          return --count;
         })
       }, 1000)
     }
+  }, [isDelayed])
 
-    //Break time
-    function BreakId() {
-      setBreakTime(breakDuration);
-      setInterval(() => {
-        setBreakTime((sal) => {
-            if (sal <= 1){
-              setRoundsLeft(roundsLeft - 1);
-              setBreaker(false);
-              workingId();
-            }
-            return sal - 1;
-          })
-      }, 1000)
+  const pauseOrResumeTimer = () => {
+    setPaused(!paused);
+  }
+
+  useEffect(() => {
+    if (remainingRounds < 1) {
+      setUnstarted(true);
+      setStarted(false);
+      setRemainingRounds(round)
     }
-  };
+    if (!unstarted && !isBreak) {
+      const remainingTimeIntervalId = setInterval(() => {
+        setRemainingTime((remainT) => {
+          if (remainT <= 1) {
+            setIsBreak(true);
+            setRemainingBreakTime(breakDuration)
+            clearInterval(remainingTimeIntervalId);
+          }
+          return paused ? remainT : remainT - 1
+        });
+      }, 1000);
+      return () => clearInterval(remainingTimeIntervalId);
+    }
+  }, [isBreak, paused, unstarted]);
+
+  useEffect(() => {
+    if (isBreak) {
+      const remainingBreakTimeIntervalId = setInterval(() => {
+        setRemainingBreakTime((remainB) => {
+          if (remainB <= 1) {
+            setIsBreak(false);
+            setRemainingTime(workingTime);
+            clearInterval(remainingBreakTimeIntervalId);
+          }
+          return paused ? remainB : remainB - 1;
+        });
+      }, 1000);
+      setRemainingRounds((rounds) => rounds - 1)
+      return () => clearInterval(remainingBreakTimeIntervalId);
+    }
+  }, [isBreak])
+
+
 
 
 
   return (
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
 
-      {delayedStart ? (
-        <p className='font-bold text-8xl mt-3'>
-          {countdown}
-        </p>
-      ) : (
-        <>
-          {!started && (
-            <>
+      {/* {delayedStart ? (
+        <p className='font-bold text-8xl mt-3'>{countdown}</p>
+      ) : ( */}
+      <>
+        {unstarted && (
+          <>
+            <ConfigTimerSection
+              title='Working time'
+              getter={workingTime}
+              setter={setWorkingTime}
+              maxValue={60}
+              minValue={5}
+              isTimer={true}
+            />
+
+            {round > 1 && (
               <ConfigTimerSection
-                title='Working time'
-                getter={workingTime}
-                setter={setWorkingTime}
+                title='Break duration'
+                getter={breakDuration}
+                setter={setBreakDuration}
                 maxValue={60}
                 minValue={5}
                 isTimer={true}
               />
+            )}
 
-              {round > 1 && (
-                <ConfigTimerSection
-                  title='Break duration'
-                  getter={breakDuration}
-                  setter={setBreakDuration}
-                  maxValue={60}
-                  minValue={5}
+            <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
+            <div className='w-72'>
+              <button
+                onClick={startTimer}
+                className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
+              >Start
+              </button>
+            </div>
+          </>
+        )}
+
+        {started && (
+          <>
+            {!isBreak && (
+              <TimerSection
+                title='Remaining time'
+                getter={remainingTime}
+                isTimer={true}
+              />)}
+            {isBreak && remainingRounds > 0 && (
+              <>
+                <TimerSection
+                  title='Remaining break time'
+                  getter={remainingBreakTime}
                   isTimer={true}
                 />
-              )}
+                <TimerSection
+                  title='Remaining rounds'
+                  getter={remainingRounds}
+                  isTimer={false}
+                />
+              </>
+            )}
+            {isBreak && remainingRounds == 0 && (
+              <>
+                <TimerSection
+                  title='Remaining break time'
+                  getter={remainingBreakTime}
+                  isTimer={true}
+                />
+                <TimerSection
+                  title=''
+                  getter={'Last round n*gger'}
+                  isTimer={false}
+                />
+              </>
+            )}
+            <div className='w-72'>
+              <button
+                onClick={pauseOrResumeTimer}
+                className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
+              >
+                {paused ? 'Resume' : 'Pause'}
+              </button>
+            </div>
+          </>
+        )}
 
-              <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
-            </>
-          )}
 
-          {started && !breaker && (
-            <TimerSection
-              title='Remaining time'
-              getter={startTime}
-              isTimer={true}
-            />)}
-          {started && breaker && (
-            <TimerSection
-              title='Break time left'
-              getter={breakTime}
-              isTimer={true}
-            />)}
-          {started && breaker && (
-            <TimerSection
-              title='Rounds left'
-              getter={round}
-              isTimer={false}
-            />)}
+      </>
 
-
-          <div className='w-72'>
-            <button
-              onClick={startTimer}
-              className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-            >
-              {started ? 'Pause' : 'Start'}
-            </button>
-          </div>
-        </>
-      )}
 
 
     </div>
