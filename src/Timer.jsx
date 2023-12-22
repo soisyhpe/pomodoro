@@ -66,42 +66,76 @@ const TimerSection = ({ title, getter, isTimer }) => {
 }
 
 function Timer() {
-  const [workingTime, setWorkingTime] = useState(5);
-  const [breakDuration, setBreakDuration] = useState(5 * 60);
+  const [workingTime, setWorkingTime] = useState(10);
+  const [breakDuration, setBreakDuration] = useState(90);
   const [round, setRound] = useState(3);
-  const [breaker,setBreaker]= useState(false)
+  const [breaker, setBreaker] = useState(false)
 
   const [started, setStarted] = useState(false);
 
   const [delayedStart, setDelayedStart] = useState(false);
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(2);
 
-  const [breakTime,setBreakTime]=useState(breakDuration);
+  const [breakTime, setBreakTime] = useState(breakDuration);
 
-  const [startTime, setStartTime] = useState(null);
+  const [startTime, setStartTime] = useState(workingTime);
+
+  const [remainingTime, setRemainingTime] = useState(2 * 60)
+  const [roundsLeft, setRoundsLeft] = useState(round)
+
 
   const startTimer = () => {
     //IDK WHAT this is for 
     //setStarted(!started);
 
     // Add a 3-second delay before starting the timer
-    if (!started) {
-      setDelayedStart(true);
-  
-      const countdownInterval = setInterval(() => {
-        setCountdown((prevCountdown) => {
-          if (prevCountdown === 1) {
-            clearInterval(countdownInterval);
-            setDelayedStart(false);
-      
-            // Todo: Timer logic here
-            setStarted(true);
-            setStartTime(workingTime);
-      
-            
+    setDelayedStart(true);
+
+    //begining countdown 
+    const countDownId = setInterval(() => {
+      setCountdown((count) => {
+        if (count <= 1) {
+          setDelayedStart(false);
+          setStarted(true);
+          clearInterval(countDownId);
+          workingId()
+        }
+        return --count;
+      })
+    }, 1000)
+    console.log("cerveau jusqu'au fond de mon être ")
+    ///beggining workTime
+    function workingId() {
+      setRemainingTime(workingTime)
+      setInterval(() => {
+        setStartTime((nwar) => {
+          if (nwar <= 1) {
+            setBreaker(true);
+            clearInterval(workingId);
+            BreakId();
+          }
+          return --nwar;
+        })
+      }, 1000)
+    }
+
+    //Break time
+    function BreakId() {
+      setBreakTime(breakDuration);
+      setInterval(() => {
+        setBreakTime((sal) => {
+            if (sal <= 1){
+              setRoundsLeft(roundsLeft - 1);
+              setBreaker(false);
+              workingId();
+            }
+            return sal - 1;
+          })
+      }, 1000)
     }
   };
-  
+
+
 
   return (
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
@@ -111,7 +145,7 @@ function Timer() {
           {countdown}
         </p>
       ) : (
-        <> 
+        <>
           {!started && (
             <>
               <ConfigTimerSection
@@ -138,24 +172,24 @@ function Timer() {
             </>
           )}
 
-          {started && !breaker &&(
-              <TimerSection
-                title='Remaining time'
-                getter={startTime}
-                isTimer={true}
-              />)}
-          {started && breaker &&(
-              <TimerSection
-                title='Break time left'
-                getter={breakTime}
-                isTimer={true}
-              />)}
+          {started && !breaker && (
+            <TimerSection
+              title='Remaining time'
+              getter={startTime}
+              isTimer={true}
+            />)}
           {started && breaker && (
-              <TimerSection
-                title='Rounds left'
-                getter={round}
-                isTimer={false}
-              />)}
+            <TimerSection
+              title='Break time left'
+              getter={breakTime}
+              isTimer={true}
+            />)}
+          {started && breaker && (
+            <TimerSection
+              title='Rounds left'
+              getter={round}
+              isTimer={false}
+            />)}
 
 
           <div className='w-72'>
