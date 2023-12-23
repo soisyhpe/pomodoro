@@ -85,10 +85,14 @@ function Timer() {
   //BreakTime && delayedStart
   const [isBreak, setIsBreak] = useState(false);
   const [isDelayed, setIsDelayed] = useState(false);
-  const [countdown, setCountdown] = useState(3)
-
+  const countdownConstant=3
+  const [countdown, setCountdown] = useState(countdownConstant);
   const startTimer = () => {
     setIsDelayed(true);
+  }
+
+  const pauseOrResumeTimer = () => {
+    setPaused(!paused);
   }
 
   useEffect(() => {
@@ -100,18 +104,12 @@ function Timer() {
             setUnstarted(false);
             setStarted(true);
             clearInterval(isDelayedIntervalId);
+            return countdownConstant;
           }
           return --count;
         })
       }, 1000)
     }
-  }, [isDelayed])
-
-  const pauseOrResumeTimer = () => {
-    setPaused(!paused);
-  }
-
-  useEffect(() => {
     if (remainingRounds < 1) {
       setUnstarted(true);
       setStarted(false);
@@ -130,9 +128,6 @@ function Timer() {
       }, 1000);
       return () => clearInterval(remainingTimeIntervalId);
     }
-  }, [isBreak, paused, unstarted]);
-
-  useEffect(() => {
     if (isBreak) {
       const remainingBreakTimeIntervalId = setInterval(() => {
         setRemainingBreakTime((remainB) => {
@@ -147,7 +142,7 @@ function Timer() {
       setRemainingRounds((rounds) => rounds - 1)
       return () => clearInterval(remainingBreakTimeIntervalId);
     }
-  }, [isBreak])
+  }, [isBreak, paused, unstarted,isDelayed])
 
 
 
@@ -156,9 +151,9 @@ function Timer() {
   return (
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
 
-      {/* {delayedStart ? (
+      {isDelayed ? (
         <p className='font-bold text-8xl mt-3'>{countdown}</p>
-      ) : ( */}
+      ) : (
       <>
         {unstarted && (
           <>
@@ -239,12 +234,7 @@ function Timer() {
             </div>
           </>
         )}
-
-
-      </>
-
-
-
+      </>)}
     </div>
   );
 }
