@@ -85,14 +85,21 @@ function Timer() {
   //BreakTime && delayedStart
   const [isBreak, setIsBreak] = useState(false);
   const [isDelayed, setIsDelayed] = useState(false);
-  const countdownConstant=3
+  const countdownConstant = 3
   const [countdown, setCountdown] = useState(countdownConstant);
+  const [reducableRound,setReducableRound]=useState(false)
+
   const startTimer = () => {
     setIsDelayed(true);
   }
 
   const pauseOrResumeTimer = () => {
     setPaused(!paused);
+  }
+
+  const roundPatch=()=>{
+    if(reducableRound)setRemainingRounds((rounds) => rounds - 1);
+    setReducableRound(false);
   }
 
   useEffect(() => {
@@ -118,10 +125,11 @@ function Timer() {
     if (!unstarted && !isBreak) {
       const remainingTimeIntervalId = setInterval(() => {
         setRemainingTime((remainT) => {
-          if (remainT <= 1) {
+          if (remainT <= 0 && !paused) {
             setIsBreak(true);
-            setRemainingBreakTime(breakDuration)
+            setRemainingBreakTime(breakDuration);
             clearInterval(remainingTimeIntervalId);
+            setReducableRound(true);
           }
           return paused ? remainT : remainT - 1
         });
@@ -129,9 +137,10 @@ function Timer() {
       return () => clearInterval(remainingTimeIntervalId);
     }
     if (isBreak) {
+      roundPatch();
       const remainingBreakTimeIntervalId = setInterval(() => {
         setRemainingBreakTime((remainB) => {
-          if (remainB <= 1) {
+          if (remainB <= 0 && !paused) {
             setIsBreak(false);
             setRemainingTime(workingTime);
             clearInterval(remainingBreakTimeIntervalId);
@@ -139,10 +148,9 @@ function Timer() {
           return paused ? remainB : remainB - 1;
         });
       }, 1000);
-      setRemainingRounds((rounds) => rounds - 1)
       return () => clearInterval(remainingBreakTimeIntervalId);
     }
-  }, [isBreak, paused, unstarted,isDelayed])
+  }, [isBreak, paused, isDelayed])
 
 
 
@@ -154,87 +162,87 @@ function Timer() {
       {isDelayed ? (
         <p className='font-bold text-8xl mt-3'>{countdown}</p>
       ) : (
-      <>
-        {unstarted && (
-          <>
-            <ConfigTimerSection
-              title='Working time'
-              getter={workingTime}
-              setter={setWorkingTime}
-              maxValue={60}
-              minValue={5}
-              isTimer={true}
-            />
-
-            {round > 1 && (
+        <>
+          {unstarted && (
+            <>
               <ConfigTimerSection
-                title='Break duration'
-                getter={breakDuration}
-                setter={setBreakDuration}
+                title='Working time'
+                getter={workingTime}
+                setter={setWorkingTime}
                 maxValue={60}
                 minValue={5}
                 isTimer={true}
               />
-            )}
 
-            <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
-            <div className='w-72'>
-              <button
-                onClick={startTimer}
-                className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-              >Start
-              </button>
-            </div>
-          </>
-        )}
-
-        {started && (
-          <>
-            {!isBreak && (
-              <TimerSection
-                title='Remaining time'
-                getter={remainingTime}
-                isTimer={true}
-              />)}
-            {isBreak && remainingRounds > 0 && (
-              <>
-                <TimerSection
-                  title='Remaining break time'
-                  getter={remainingBreakTime}
+              {round > 1 && (
+                <ConfigTimerSection
+                  title='Break duration'
+                  getter={breakDuration}
+                  setter={setBreakDuration}
+                  maxValue={60}
+                  minValue={5}
                   isTimer={true}
                 />
+              )}
+
+              <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
+              <div className='w-72'>
+                <button
+                  onClick={startTimer}
+                  className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
+                >Start
+                </button>
+              </div>
+            </>
+          )}
+
+          {started && (
+            <>
+              {!isBreak && (
                 <TimerSection
-                  title='Remaining rounds'
-                  getter={remainingRounds}
-                  isTimer={false}
-                />
-              </>
-            )}
-            {isBreak && remainingRounds == 0 && (
-              <>
-                <TimerSection
-                  title='Remaining break time'
-                  getter={remainingBreakTime}
+                  title='Remaining time'
+                  getter={remainingTime}
                   isTimer={true}
-                />
-                <TimerSection
-                  title=''
-                  getter={'Last round n*gger'}
-                  isTimer={false}
-                />
-              </>
-            )}
-            <div className='w-72'>
-              <button
-                onClick={pauseOrResumeTimer}
-                className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-              >
-                {paused ? 'Resume' : 'Pause'}
-              </button>
-            </div>
-          </>
-        )}
-      </>)}
+                />)}
+              {isBreak && remainingRounds > 0 && (
+                <>
+                  <TimerSection
+                    title='Remaining break time'
+                    getter={remainingBreakTime}
+                    isTimer={true}
+                  />
+                  <TimerSection
+                    title='Remaining rounds'
+                    getter={remainingRounds}
+                    isTimer={false}
+                  />
+                </>
+              )}
+              {isBreak && remainingRounds == 0 && (
+                <>
+                  <TimerSection
+                    title='Remaining break time'
+                    getter={remainingBreakTime}
+                    isTimer={true}
+                  />
+                  <TimerSection
+                    title=''
+                    getter={'Last break'}
+                    isTimer={false}
+                  />
+                </>
+              )}
+              <div className='w-72'>
+                <button
+                  onClick={pauseOrResumeTimer}
+                  className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
+                >
+                  {paused ? 'Resume' : 'Pause'}
+                </button>
+              </div>
+            </>
+          )}
+        </>)}
     </div>
   );
 }
