@@ -1,5 +1,7 @@
 import './timer.css';
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import {FullScreen} from 'react-full-screen';
+
 
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
@@ -63,10 +65,12 @@ const TimerSection = ({ title, getter, isTimer }) => {
       <p className='font-bold text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
     </div>
   );
-}
+};
 
-// const test
 function Timer() {
+
+  //fullscreen
+  const [fullScreen,setFullScreen]=useState(false);
 
   ///User input 
   const [workingTime, setWorkingTime] = useState(5);
@@ -93,6 +97,7 @@ function Timer() {
   const startTimer = () => {
     setIsDelayed(true);
     new Audio('/mysterious.mp3').play().catch((error) => console.error('error playing audio', audio));
+    setFullScreen(false);
   }
 
   const pauseOrResumeTimer = () => {
@@ -104,11 +109,17 @@ function Timer() {
     setReducableRound(false);
   }
 
+  const FullScreenHandler = () => {
+    setFullScreen(!fullScreen);
+  }
+
   useEffect(() => {
     if (isDelayed) {
+      setFullScreen(true);
       const isDelayedIntervalId = setInterval(() => {
         setCountdown((count) => {
           if (count <= 0) {
+
             setIsDelayed(false)
             setUnstarted(false);
             setStarted(true);
@@ -159,8 +170,8 @@ function Timer() {
 
 
   return (
+    // <FullScreen enabled={fullScreen}>
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
-
       {isDelayed ? (
         <p className='font-bold text-8xl mt-3'>{countdown}</p>
       ) : (
@@ -246,6 +257,7 @@ function Timer() {
           )}
         </>)}
     </div>
+    // </FullScreen>
   );
 }
 
