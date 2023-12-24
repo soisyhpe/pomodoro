@@ -65,6 +65,7 @@ const TimerSection = ({ title, getter, isTimer }) => {
   );
 }
 
+// const test
 function Timer() {
 
   ///User input 
@@ -87,18 +88,19 @@ function Timer() {
   const [isDelayed, setIsDelayed] = useState(false);
   const countdownConstant = 3
   const [countdown, setCountdown] = useState(countdownConstant);
-  const [reducableRound,setReducableRound]=useState(false)
+  const [reducableRound, setReducableRound] = useState(false)
 
   const startTimer = () => {
     setIsDelayed(true);
+    new Audio('/mysterious.mp3').play().catch((error) => console.error('error playing audio', audio));
   }
 
   const pauseOrResumeTimer = () => {
     setPaused(!paused);
   }
 
-  const roundPatch=()=>{
-    if(reducableRound)setRemainingRounds((rounds) => rounds - 1);
+  const roundPatch = () => {
+    if (reducableRound) setRemainingRounds((rounds) => rounds - 1);
     setReducableRound(false);
   }
 
@@ -227,7 +229,7 @@ function Timer() {
                   />
                   <TimerSection
                     title=''
-                    getter={'Last break'}
+                    getter={'Last round n*gger'}
                     isTimer={false}
                   />
                 </>
