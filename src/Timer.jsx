@@ -175,7 +175,7 @@ function Timer() {
       {isDelayed ? (
         <p className='font-bold text-8xl mt-3'>{countdown}</p>
       ) : (
-        <>
+        <>                             
           {unstarted && (
             <>
               <ConfigTimerSection
