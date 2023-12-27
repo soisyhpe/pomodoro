@@ -1,6 +1,6 @@
 import './timer.css';
 import React, { useRef, useState, useEffect } from 'react';
-import {FullScreen} from 'react-full-screen';
+import { FullScreen } from 'react-full-screen';
 
 
 const formatTime = (time) => {
@@ -70,7 +70,7 @@ const TimerSection = ({ title, getter, isTimer }) => {
 function Timer() {
 
   //fullscreen
-  const [fullScreen,setFullScreen]=useState(false);
+  const [fullScreen, setFullScreen] = useState(false);
 
   ///User input 
   const [workingTime, setWorkingTime] = useState(5);
@@ -92,12 +92,14 @@ function Timer() {
   const [isDelayed, setIsDelayed] = useState(false);
   const countdownConstant = 3
   const [countdown, setCountdown] = useState(countdownConstant);
-  const [reducableRound, setReducableRound] = useState(false)
+  const [reducableRound, setReducableRound] = useState(false);
+  const [audio, setAudio]=useState(new Audio('/mysterious.mp3'));
 
   const startTimer = () => {
     setIsDelayed(true);
-    new Audio('/mysterious.mp3').play().catch((error) => console.error('error playing audio', audio));
+    audio.play.catch((error) => console.error('error playing audio', audio)); 
     setFullScreen(false);
+    setRemainingRounds(round);
   }
 
   const pauseOrResumeTimer = () => {
@@ -109,8 +111,14 @@ function Timer() {
     setReducableRound(false);
   }
 
-  const FullScreenHandler = () => {
+  const fullScreenHandler = () => {
     setFullScreen(!fullScreen);
+  }
+
+  const logicalEnd = () => {
+    setUnstarted(true);
+    setStarted(false);
+    setRemainingRounds(round)
   }
 
   useEffect(() => {
@@ -130,11 +138,6 @@ function Timer() {
         })
       }, 1000)
     }
-    if (remainingRounds < 1) {
-      setUnstarted(true);
-      setStarted(false);
-      setRemainingRounds(round)
-    }
     if (!unstarted && !isBreak) {
       const remainingTimeIntervalId = setInterval(() => {
         setRemainingTime((remainT) => {
@@ -151,12 +154,15 @@ function Timer() {
     }
     if (isBreak) {
       roundPatch();
+      useState(new Audio('/break.mp3').play().catch((error) => console.error('error playing audio', audio)));
+      if (remainingRounds == 1) logicalEnd();
       const remainingBreakTimeIntervalId = setInterval(() => {
         setRemainingBreakTime((remainB) => {
           if (remainB <= 0 && !paused) {
             setIsBreak(false);
             setRemainingTime(workingTime);
             clearInterval(remainingBreakTimeIntervalId);
+            useState(new Audio('/end_of_timer.mp3').play().catch((error) => console.error('error playing audio', audio)));
           }
           return paused ? remainB : remainB - 1;
         });
@@ -170,14 +176,14 @@ function Timer() {
 
 
   return (
-    // <FullScreen enabled={fullScreen}>
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
       {isDelayed ? (
         <p className='font-bold text-8xl mt-3'>{countdown}</p>
       ) : (
-        <>                             
+        <>
           {unstarted && (
             <>
+              {/* <FullScreen enabled={fullScreen}> */}
               <ConfigTimerSection
                 title='Working time'
                 getter={workingTime}
@@ -197,7 +203,6 @@ function Timer() {
                   isTimer={true}
                 />
               )}
-
               <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
               <div className='w-72'>
                 <button
@@ -206,6 +211,7 @@ function Timer() {
                 >Start
                 </button>
               </div>
+              {/* </FullScreen> */}
             </>
           )}
 
@@ -231,16 +237,11 @@ function Timer() {
                   />
                 </>
               )}
-              {isBreak && remainingRounds == 0 && (
+              {!isBreak && remainingRounds == 1 && (
                 <>
                   <TimerSection
-                    title='Remaining break time'
-                    getter={remainingBreakTime}
-                    isTimer={true}
-                  />
-                  <TimerSection
                     title=''
-                    getter={'Last round n*gger'}
+                    getter={'Last round '}
                     isTimer={false}
                   />
                 </>
@@ -257,7 +258,6 @@ function Timer() {
           )}
         </>)}
     </div>
-    // </FullScreen>
   );
 }
 
