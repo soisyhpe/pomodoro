@@ -94,16 +94,17 @@ function Timer() {
   const [countdown, setCountdown] = useState(countdownConstant);
   const [reducableRound, setReducableRound] = useState(false);
   const [audio, setAudio]=useState(new Audio('/mysterious.mp3'));
+  const [breakSong, setBreakSong]=useState((new Audio('/break.mp3')));
 
   const startTimer = () => {
     setIsDelayed(true);
-    audio.play.catch((error) => console.error('error playing audio', audio)); 
     setFullScreen(false);
     setRemainingRounds(round);
   }
 
   const pauseOrResumeTimer = () => {
-    setPaused(!paused);
+    isBreak? paused ? breakSong.play() : breakSong.pause: paused ? audio.play() :audio.pause();
+    setPaused(!paused); 
   }
 
   const roundPatch = () => {
@@ -127,7 +128,6 @@ function Timer() {
       const isDelayedIntervalId = setInterval(() => {
         setCountdown((count) => {
           if (count <= 0) {
-
             setIsDelayed(false)
             setUnstarted(false);
             setStarted(true);
@@ -139,6 +139,7 @@ function Timer() {
       }, 1000)
     }
     if (!unstarted && !isBreak) {
+      if (!paused) {breakSong.pause();audio.play();}
       const remainingTimeIntervalId = setInterval(() => {
         setRemainingTime((remainT) => {
           if (remainT <= 0 && !paused) {
@@ -147,22 +148,21 @@ function Timer() {
             clearInterval(remainingTimeIntervalId);
             setReducableRound(true);
           }
-          return paused ? remainT : remainT - 1
-        });
-      }, 1000);
-      return () => clearInterval(remainingTimeIntervalId);
-    }
+            return paused ? remainT : remainT - 1
+          });
+        }, 1000);
+        return () => clearInterval(remainingTimeIntervalId);
+      }
     if (isBreak) {
       roundPatch();
-      useState(new Audio('/break.mp3').play().catch((error) => console.error('error playing audio', audio)));
       if (remainingRounds == 1) logicalEnd();
+      if(!paused){audio.pause();breakSong.play();}
       const remainingBreakTimeIntervalId = setInterval(() => {
         setRemainingBreakTime((remainB) => {
           if (remainB <= 0 && !paused) {
             setIsBreak(false);
             setRemainingTime(workingTime);
             clearInterval(remainingBreakTimeIntervalId);
-            useState(new Audio('/end_of_timer.mp3').play().catch((error) => console.error('error playing audio', audio)));
           }
           return paused ? remainB : remainB - 1;
         });
