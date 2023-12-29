@@ -103,7 +103,7 @@ function Timer() {
   }
 
   const pauseOrResumeTimer = () => {
-    isBreak? paused ? breakSong.play() : breakSong.pause: paused ? audio.play() :audio.pause();
+    isBreak? paused ? breakSong.play() : breakSong.pause(): paused ? audio.play() :audio.pause();
     setPaused(!paused); 
   }
 
@@ -116,9 +116,11 @@ function Timer() {
     setFullScreen(!fullScreen);
   }
 
-  const logicalEnd = () => {
+  const logicalEnd = () => {  
+    breakSong.pause()
     setUnstarted(true);
     setStarted(false);
+    setIsBreak(false);
     setRemainingRounds(round)
   }
 
