@@ -93,36 +93,36 @@ function Timer() {
   const countdownConstant = 3
   const [countdown, setCountdown] = useState(countdownConstant);
   const [reducableRound, setReducableRound] = useState(false);
-  const [audio, setAudio]=useState(new Audio('/mysterious.mp3'));
-  const [breakSong, setBreakSong]=useState((new Audio('/break.mp3')));
+  const [end, setEnd] = useState(false);
+
 
   const startTimer = () => {
     setIsDelayed(true);
-    setFullScreen(false);
     setRemainingRounds(round);
+    setFullScreen(false);
+    setRemainingTime(workingTime);
   }
 
   const pauseOrResumeTimer = () => {
-    isBreak? paused ? breakSong.play() : breakSong.pause(): paused ? audio.play() :audio.pause();
-    setPaused(!paused); 
+    setPaused(!paused);
   }
 
   const roundPatch = () => {
-    if (reducableRound) setRemainingRounds((rounds) => rounds - 1);
+    if (reducableRound) {
+      setRemainingRounds((rounds) => rounds - 1);
+      if (remainingRounds == 1) logicalEnd();
+    }
+
     setReducableRound(false);
   }
 
-  const fullScreenHandler = () => {
-    setFullScreen(!fullScreen);
-  }
-
-  const logicalEnd = () => {  
-    breakSong.pause()
+  const logicalEnd = () => {
     setUnstarted(true);
     setStarted(false);
     setIsBreak(false);
     setRemainingRounds(round)
   }
+
 
   useEffect(() => {
     if (isDelayed) {
@@ -141,24 +141,22 @@ function Timer() {
       }, 1000)
     }
     if (!unstarted && !isBreak) {
-      if (!paused) {breakSong.pause();audio.play();}
       const remainingTimeIntervalId = setInterval(() => {
         setRemainingTime((remainT) => {
           if (remainT <= 0 && !paused) {
             setIsBreak(true);
             setRemainingBreakTime(breakDuration);
             clearInterval(remainingTimeIntervalId);
+            console.log(remainingTimeIntervalId);
             setReducableRound(true);
           }
-            return paused ? remainT : remainT - 1
-          });
-        }, 1000);
-        return () => clearInterval(remainingTimeIntervalId);
-      }
+          return paused ? remainT : remainT - 1
+        });
+      }, 1000);
+      return () => clearInterval(remainingTimeIntervalId);
+    }
     if (isBreak) {
       roundPatch();
-      if (remainingRounds == 1) logicalEnd();
-      if(!paused){audio.pause();breakSong.play();}
       const remainingBreakTimeIntervalId = setInterval(() => {
         setRemainingBreakTime((remainB) => {
           if (remainB <= 0 && !paused) {
@@ -174,9 +172,6 @@ function Timer() {
   }, [isBreak, paused, isDelayed])
 
 
-
-
-
   return (
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
       {isDelayed ? (
@@ -185,7 +180,6 @@ function Timer() {
         <>
           {unstarted && (
             <>
-              {/* <FullScreen enabled={fullScreen}> */}
               <ConfigTimerSection
                 title='Working time'
                 getter={workingTime}
