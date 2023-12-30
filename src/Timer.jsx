@@ -73,8 +73,8 @@ function Timer() {
   const [fullScreen, setFullScreen] = useState(false);
 
   ///User input 
-  const [workingTime, setWorkingTime] = useState(5);
-  const [breakDuration, setBreakDuration] = useState(5);
+  const [workingTime, setWorkingTime] = useState(25*60);
+  const [breakDuration, setBreakDuration] = useState(5*60);
   const [round, setRound] = useState(3);
 
   //states
