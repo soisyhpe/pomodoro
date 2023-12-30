@@ -1,6 +1,5 @@
 import './timer.css';
 import React, { useRef, useState, useEffect } from 'react';
-import { FullScreen } from 'react-full-screen';
 
 
 const formatTime = (time) => {
@@ -69,12 +68,9 @@ const TimerSection = ({ title, getter, isTimer }) => {
 
 function Timer() {
 
-  //fullscreen
-  const [fullScreen, setFullScreen] = useState(false);
-
   ///User input 
-  const [workingTime, setWorkingTime] = useState(25*60);
-  const [breakDuration, setBreakDuration] = useState(5*60);
+  const [workingTime, setWorkingTime] = useState(25 * 60);
+  const [breakDuration, setBreakDuration] = useState(5 * 60);
   const [round, setRound] = useState(3);
 
   //states
@@ -207,7 +203,6 @@ function Timer() {
                 >Start
                 </button>
               </div>
-              {/* </FullScreen> */}
             </>
           )}
 
