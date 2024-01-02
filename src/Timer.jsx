@@ -1,7 +1,7 @@
 import './timer.css';
-import {ConfigTimerSection, TimerSection} from "./TimerSection.jsx";
+import {ConfigTimerSection, TimerSection} from "./components/TimerSection.jsx";
 import React, {useRef, useState, useEffect} from 'react';
-import {UsualButton} from "./Button.jsx";
+import {UsualButton} from "./components/Button.jsx";
 
 function Timer() {
 
