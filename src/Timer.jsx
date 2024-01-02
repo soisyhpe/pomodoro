@@ -1,4 +1,5 @@
 import './timer.css';
+import Button from "./Button.jsx";
 import React, { useRef, useState, useEffect } from 'react';
 
 
@@ -7,17 +8,6 @@ const formatTime = (time) => {
   const seconds = time % 60;
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
-
-const Button = ({ onClick, label, isDisabled }) => (
-  <button
-    onClick={onClick}
-    className={`w-full h-12 font-bold rounded-full text-4xl p-0 mr-1 ${isDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-900 text-white cursor-pointer'
-      }`}
-    disabled={isDisabled}
-  >
-    {label}
-  </button>
-);
 
 const ConfigTimerSection = ({ title, getter, setter, maxValue, minValue, isTimer }) => {
   const isMinValueReached = getter <= (isTimer ? minValue * 60 : minValue);
