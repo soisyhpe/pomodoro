@@ -15,8 +15,8 @@ const ConfigTimerSection = ({ title, getter, setter, maxValue, minValue, isTimer
 
   return (
     <div className='w-72 mb-10'>
-      <h1 className='font-black text-4xl'>{title}</h1>
-      <p className='font-bold text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
+      <h1 className='font-bold text-4xl'>{title}</h1>
+      <p className='font-black text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
       <div className='flex items-stretch'>
         <Button
           onClick={() =>
