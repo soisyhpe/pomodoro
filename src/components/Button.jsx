@@ -1,13 +1,22 @@
 import React from "react";
 
-const UsualButton = ({onClick, label}) => (
+const UsualButton = ({onClick, label, svgIcon}) => (
   <button
     onClick={onClick}
     className={`w-full h-16 rounded-full m-1 bg-black cursor-pointer'
     }`}
   >
-    <p
-      className={`pt-1.5 inline-block align-middle text-center text-white font-black text-4xl`}>{label}</p>
+    <div className='flex flex-row justify-center'>
+      <img
+        src={svgIcon}
+        alt="Pause Button"
+        className='pr-5'
+        // Adjust the size as needed (e.g., w-8 h-8 for 35px)
+      />
+
+      <p
+        className='pt-1.5 inline-block align-middle text-center text-white font-black text-4xl'>{label}</p>
+    </div>
   </button>
 );
 
