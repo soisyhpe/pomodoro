@@ -2,6 +2,8 @@ import './timer.css';
 import {ConfigTimerSection, TimerSection} from "./components/TimerSection.jsx";
 import React, {useRef, useState, useEffect} from 'react';
 import {UsualButton} from "./components/Button.jsx";
+import playOrResumeButton from './assets/play_button.svg';
+import pauseButton from './assets/pause_button.svg';
 
 function Timer() {
 
@@ -145,6 +147,7 @@ function Timer() {
                 <UsualButton
                   onClick={startTimer}
                   label='Start'
+                  svgIcon={playOrResumeButton}
                 />
               </div>
             </>
@@ -179,6 +182,7 @@ function Timer() {
                 <UsualButton
                   onClick={pauseOrResumeTimer}
                   label={paused ? 'Resume' : 'Pause'}
+                  svgIcon={paused ? playOrResumeButton : pauseButton}
                 />
               </div>
             </>

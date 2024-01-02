@@ -12,10 +12,10 @@ const ConfigTimerSection = ({title, getter, setter, maxValue, minValue, isTimer,
   const isMaxValueReached = getter >= (isTimer ? maxValue * 60 : maxValue);
 
   return (
-    <div className='w-72 mb-10'>
-      <h1 className={`${isDisabled ? 'text-black-disabled' : 'text-black'} font-bold text-4xl`}>{title}</h1>
+    <div className={`w-72 mb-10 ${isDisabled ? 'text-black-disabled' : 'text-black'}`}>
+      <h1 className={`font-bold text-4xl`}>{title}</h1>
       <p
-        className={`${isDisabled ? 'text-black-disabled' : 'text-black'} font-black text-8xl`}>{isTimer ? formatTime(getter) : getter}</p>
+        className={`font-black text-8xl`}>{isTimer ? formatTime(getter) : getter}</p>
       <div className='flex items-stretch'>
         <Button
           onClick={() =>
@@ -27,7 +27,7 @@ const ConfigTimerSection = ({title, getter, setter, maxValue, minValue, isTimer,
             )
           }
           label={`-${minValue}`}
-          isDisabled={isMinValueReached}
+          isDisabled={isDisabled||isMinValueReached}
         />
         <Button
           onClick={() =>
@@ -39,7 +39,7 @@ const ConfigTimerSection = ({title, getter, setter, maxValue, minValue, isTimer,
             )
           }
           label={`+${minValue}`}
-          isDisabled={isMaxValueReached}
+          isDisabled={isDisabled||isMaxValueReached}
         />
       </div>
     </div>
