@@ -95,7 +95,6 @@ function Timer() {
   const startTimer = () => {
     setIsDelayed(true);
     setRemainingRounds(round);
-    setFullScreen(false);
     setRemainingTime(workingTime);
   }
 
@@ -122,7 +121,6 @@ function Timer() {
 
   useEffect(() => {
     if (isDelayed) {
-      setFullScreen(true);
       const isDelayedIntervalId = setInterval(() => {
         setCountdown((count) => {
           if (count <= 0) {
