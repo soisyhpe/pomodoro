@@ -1,67 +1,14 @@
 import './timer.css';
-import Button from "./Button.jsx";
-import React, { useRef, useState, useEffect } from 'react';
-
-
-const formatTime = (time) => {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-};
-
-const ConfigTimerSection = ({ title, getter, setter, maxValue, minValue, isTimer }) => {
-  const isMinValueReached = getter <= (isTimer ? minValue * 60 : minValue);
-  const isMaxValueReached = getter >= (isTimer ? maxValue * 60 : maxValue);
-
-  return (
-    <div className='w-72 mb-10'>
-      <h1 className='font-bold text-4xl'>{title}</h1>
-      <p className='font-black text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
-      <div className='flex items-stretch'>
-        <Button
-          onClick={() =>
-            setter((previousValue) =>
-              Math.max(
-                previousValue - (isTimer ? minValue * 60 : minValue),
-                isTimer ? minValue * 60 : minValue
-              )
-            )
-          }
-          label={`-${minValue}`}
-          isDisabled={isMinValueReached}
-        />
-        <Button
-          onClick={() =>
-            setter((previousValue) =>
-              Math.min(
-                previousValue + (isTimer ? minValue * 60 : minValue),
-                isTimer ? maxValue * 60 : maxValue
-              )
-            )
-          }
-          label={`+${minValue}`}
-          isDisabled={isMaxValueReached}
-        />
-      </div>
-    </div>
-  );
-};
-
-const TimerSection = ({ title, getter, isTimer }) => {
-  return (
-    <div className='w-72 mb-10'>
-      <h1 className='font-black text-4xl'>{title}</h1>
-      <p className='font-bold text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
-    </div>
-  );
-};
+import {ConfigTimerSection, TimerSection} from "./TimerSection.jsx";
+import React, {useRef, useState, useEffect} from 'react';
+import {UsualButton} from "./Button.jsx";
 
 function Timer() {
 
-  ///User input 
+  ///User input
   const [workingTime, setWorkingTime] = useState(25 * 60);
   const [breakDuration, setBreakDuration] = useState(5 * 60);
-  const [round, setRound] = useState(3);
+  const [roundCount, setRoundCount] = useState(4);
 
   //states
   const [unstarted, setUnstarted] = useState(true);
@@ -71,7 +18,7 @@ function Timer() {
   //Retrieval of user input and use of it
   const [remainingTime, setRemainingTime] = useState(workingTime);
   const [remainingBreakTime, setRemainingBreakTime] = useState(breakDuration);
-  const [remainingRounds, setRemainingRounds] = useState(round);
+  const [remainingRounds, setRemainingRounds] = useState(roundCount);
 
   //BreakTime && delayedStart
   const [isBreak, setIsBreak] = useState(false);
@@ -84,7 +31,7 @@ function Timer() {
 
   const startTimer = () => {
     setIsDelayed(true);
-    setRemainingRounds(round);
+    setRemainingRounds(roundCount);
     setRemainingTime(workingTime);
   }
 
@@ -105,7 +52,7 @@ function Timer() {
     setUnstarted(true);
     setStarted(false);
     setIsBreak(false);
-    setRemainingRounds(round)
+    setRemainingRounds(roundCount)
   }
 
 
@@ -159,37 +106,46 @@ function Timer() {
   return (
     <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
       {isDelayed ? (
-        <p className='font-bold text-8xl mt-3'>{countdown}</p>
+        <p className='text-black font-bold text-8xl'>{countdown}</p>
       ) : (
         <>
           {unstarted && (
             <>
               <ConfigTimerSection
-                title='Working time'
+                title='Work duration'
                 getter={workingTime}
                 setter={setWorkingTime}
                 maxValue={60}
-                minValue={5}
+                minValue={1}
                 isTimer={true}
+                isDisabled={false}
               />
 
-              {round > 1 && (
-                <ConfigTimerSection
-                  title='Break duration'
-                  getter={breakDuration}
-                  setter={setBreakDuration}
-                  maxValue={60}
-                  minValue={5}
-                  isTimer={true}
-                />
-              )}
-              <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
+              <ConfigTimerSection
+                title='Break duration'
+                getter={breakDuration}
+                setter={setBreakDuration}
+                maxValue={60}
+                minValue={1}
+                isTimer={true}
+                isDisabled={roundCount <= 1}
+              />
+
+              <ConfigTimerSection
+                title='Round count'
+                getter={roundCount}
+                setter={setRoundCount}
+                maxValue={10}
+                minValue={1}
+                isTimer={false}
+                isDisabled={false}
+              />
+
               <div className='w-72'>
-                <button
+                <UsualButton
                   onClick={startTimer}
-                  className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-                >Start
-                </button>
+                  label='Start'
+                />
               </div>
             </>
           )}
@@ -198,40 +154,32 @@ function Timer() {
             <>
               {!isBreak && (
                 <TimerSection
-                  title='Remaining time'
+                  title='Work'
                   getter={remainingTime}
                   isTimer={true}
                 />)}
+
               {isBreak && remainingRounds > 0 && (
                 <>
                   <TimerSection
-                    title='Remaining break time'
+                    title='Break'
                     getter={remainingBreakTime}
                     isTimer={true}
                   />
-                  <TimerSection
-                    title='Remaining rounds'
-                    getter={remainingRounds}
-                    isTimer={false}
-                  />
                 </>
               )}
-              {!isBreak && remainingRounds == 1 && (
-                <>
-                  <TimerSection
-                    title=''
-                    getter={'Last round '}
-                    isTimer={false}
-                  />
-                </>
-              )}
+
+              <TimerSection
+                title='Round'
+                getter={`${roundCount - remainingRounds}/${roundCount}`}
+                isTimer={false}
+              />
+
               <div className='w-72'>
-                <button
+                <UsualButton
                   onClick={pauseOrResumeTimer}
-                  className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-                >
-                  {paused ? 'Resume' : 'Pause'}
-                </button>
+                  label={paused ? 'Resume' : 'Pause'}
+                />
               </div>
             </>
           )}
