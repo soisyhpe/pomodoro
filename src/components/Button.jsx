@@ -1,35 +1,34 @@
 import React from "react";
 
-const UsualButton = ({onClick, label, svgIcon}) => (
-  <button
-    onClick={onClick}
-    className={`w-full h-16 rounded-full m-1 bg-black cursor-pointer'
-    }`}
-  >
-    <div className='flex flex-row justify-center'>
-      <img
-        src={svgIcon}
-        alt="Pause Button"
-        className='pr-5'
-        // Adjust the size as needed (e.g., w-8 h-8 for 35px)
-      />
+const UsualButton = ({onClick, label, svgIcon: buttonIcon}) => (
+  <div onClick={onClick}
+       className='w-full h-16 rounded-full bg-black cursor-pointer select-none'>
 
-      <p
-        className='pt-1.5 inline-block align-middle text-center text-white font-black text-4xl'>{label}</p>
+    <div className='w-full h-full flex flex-row gap-5 justify-center items-center'>
+
+      {/* Button icon */}
+      <img src={buttonIcon} alt='Button icon' className='w-8'/>
+
+      {/* Text button */}
+      <div className='font-black text-white text-center text-4xl'>{label}</div>
+
     </div>
-  </button>
+
+  </div>
 );
 
 const Button = ({onClick, label, isDisabled}) => (
-  <button
-    onClick={onClick}
-    className={`w-full h-12 rounded-full m-1 ${isDisabled ? 'bg-black-disabled cursor-not-allowed' : 'bg-black cursor-pointer'
-    }`}
-    disabled={isDisabled}
-  >
-    <p
-      className={`pt-1.5 inline-block align-middle ${isDisabled ? 'text-white-disabled' : 'text-white'} text-center text-3xl font-black`}>{label}</p>
-  </button>
+  <div onClick={onClick}
+       className={`${isDisabled ? 'bg-black-disabled cursor-not-allowed' : 'bg-black cursor-pointer'} w-full h-12 rounded-full select-none`}>
+
+    <div className='w-full h-full flex justify-center items-center'>
+
+      {/* Text button */}
+      <div className={`font-black ${isDisabled ? 'text-white-disabled' : 'text-white'} text-center text-3xl`}>{label}</div>
+
+    </div>
+
+  </div>
 );
 
 export {UsualButton, Button};

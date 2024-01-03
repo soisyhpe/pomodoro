@@ -12,45 +12,69 @@ const ConfigTimerSection = ({title, getter, setter, maxValue, minValue, isTimer,
   const isMaxValueReached = getter >= (isTimer ? maxValue * 60 : maxValue);
 
   return (
-    <div className={`w-72 mb-10 ${isDisabled ? 'text-black-disabled' : 'text-black'}`}>
-      <h1 className={`font-bold text-4xl`}>{title}</h1>
-      <p
-        className={`font-black text-8xl`}>{isTimer ? formatTime(getter) : getter}</p>
-      <div className='flex items-stretch'>
-        <Button
-          onClick={() =>
-            setter((previousValue) =>
-              Math.max(
-                previousValue - (isTimer ? minValue * 60 : minValue),
-                isTimer ? minValue * 60 : minValue
+    <div className={`w-full ${isDisabled ? 'text-black-disabled' : 'text-black'}`}>
+
+      <div className='flex flex-col gap-0'>
+
+        {/* Title */}
+        <div className='font-bold text-4xl'>{title}</div>
+
+        {/* Timer value */}
+        <div className='font-black text-8xl'>{isTimer ? formatTime(getter) : getter}</div>
+
+        {/* Buttons */}
+        <div className='flex flex-row gap-5'>
+
+          {/* Decrease button */}
+          <Button
+            onClick={() =>
+              setter((previousValue) =>
+                Math.max(
+                  previousValue - (isTimer ? minValue * 60 : minValue),
+                  isTimer ? minValue * 60 : minValue
+                )
               )
-            )
-          }
-          label={`-${minValue}`}
-          isDisabled={isDisabled||isMinValueReached}
-        />
-        <Button
-          onClick={() =>
-            setter((previousValue) =>
-              Math.min(
-                previousValue + (isTimer ? minValue * 60 : minValue),
-                isTimer ? maxValue * 60 : maxValue
+            }
+            label={`-${minValue}`}
+            isDisabled={isDisabled || isMinValueReached}
+          />
+
+          {/* Increase button */}
+          <Button
+            onClick={() =>
+              setter((previousValue) =>
+                Math.min(
+                  previousValue + (isTimer ? minValue * 60 : minValue),
+                  isTimer ? maxValue * 60 : maxValue
+                )
               )
-            )
-          }
-          label={`+${minValue}`}
-          isDisabled={isDisabled||isMaxValueReached}
-        />
+            }
+            label={`+${minValue}`}
+            isDisabled={isDisabled || isMaxValueReached}
+          />
+
+        </div>
+
       </div>
+
     </div>
   );
 };
 
 const TimerSection = ({title, getter, isTimer}) => {
   return (
-    <div className='w-72 mb-10'>
-      <h1 className='text-black font-bold text-4xl'>{title}</h1>
-      <p className='text-black font-black text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
+    <div className='w-full text-black'>
+
+      <div className='flex flex-col gap-0'>
+
+        {/* Title */}
+        <div className='font-bold text-4xl'>{title}</div>
+
+        {/* Timer value */}
+        <div className='font-black text-8xl'>{isTimer ? formatTime(getter) : getter}</div>
+
+      </div>
+
     </div>
   );
 };

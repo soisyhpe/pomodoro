@@ -4,6 +4,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import {UsualButton} from "./components/Button.jsx";
 import playOrResumeButton from './assets/play_button.svg';
 import pauseButton from './assets/pause_button.svg';
+import cancelButton from './assets/cancel_button.svg';
 
 function Timer() {
 
@@ -106,88 +107,112 @@ function Timer() {
 
 
   return (
-    <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
-      {isDelayed ? (
-        <p className='text-black font-bold text-8xl'>{countdown}</p>
-      ) : (
-        <>
-          {unstarted && (
-            <>
-              <ConfigTimerSection
-                title='Work duration'
-                getter={workingTime}
-                setter={setWorkingTime}
-                maxValue={60}
-                minValue={1}
-                isTimer={true}
-                isDisabled={false}
-              />
+    <div className='min-w-screen min-h-screen flex flex-col justify-center items-center '>
+      <div className='w-72 flex flex-col gap-10'>
+        {isDelayed ? (
+          <div className='font-bold text-black text-8xl text-center'>{countdown}</div>
+        ) : (
+          <>
+            {unstarted && (
+              <>
+                <ConfigTimerSection
+                  title='Work duration'
+                  getter={workingTime}
+                  setter={setWorkingTime}
+                  maxValue={60}
+                  minValue={1}
+                  isTimer={true}
+                  isDisabled={false}
+                />
 
-              <ConfigTimerSection
-                title='Break duration'
-                getter={breakDuration}
-                setter={setBreakDuration}
-                maxValue={60}
-                minValue={1}
-                isTimer={true}
-                isDisabled={roundCount <= 1}
-              />
+                <ConfigTimerSection
+                  title='Break duration'
+                  getter={breakDuration}
+                  setter={setBreakDuration}
+                  maxValue={60}
+                  minValue={1}
+                  isTimer={true}
+                  isDisabled={roundCount <= 1}
+                />
 
-              <ConfigTimerSection
-                title='Round count'
-                getter={roundCount}
-                setter={setRoundCount}
-                maxValue={10}
-                minValue={1}
-                isTimer={false}
-                isDisabled={false}
-              />
+                <ConfigTimerSection
+                  title='Round count'
+                  getter={roundCount}
+                  setter={setRoundCount}
+                  maxValue={10}
+                  minValue={1}
+                  isTimer={false}
+                  isDisabled={false}
+                />
 
-              <div className='w-72'>
                 <UsualButton
                   onClick={startTimer}
                   label='Start'
                   svgIcon={playOrResumeButton}
                 />
-              </div>
-            </>
-          )}
+              </>
+            )}
 
-          {started && (
-            <>
-              {!isBreak && (
-                <TimerSection
-                  title='Work'
-                  getter={remainingTime}
-                  isTimer={true}
-                />)}
+            {started && (
+              <>
+                {!isBreak && (
+                  <TimerSection
+                    title='Work'
+                    getter={remainingTime}
+                    isTimer={true}
+                  />
+                )}
 
-              {isBreak && remainingRounds > 0 && (
-                <>
+                {isBreak && remainingRounds > 0 && (
                   <TimerSection
                     title='Break'
                     getter={remainingBreakTime}
                     isTimer={true}
                   />
-                </>
-              )}
+                )}
 
-              <TimerSection
-                title='Round'
-                getter={`${roundCount - remainingRounds}/${roundCount}`}
-                isTimer={false}
-              />
-
-              <div className='w-72'>
-                <UsualButton
-                  onClick={pauseOrResumeTimer}
-                  label={paused ? 'Resume' : 'Pause'}
-                  svgIcon={paused ? playOrResumeButton : pauseButton}
+                <TimerSection
+                  title='Round'
+                  getter={`${roundCount - remainingRounds}/${roundCount}`}
+                  isTimer={false}
                 />
-              </div>
-            </>
-          )}
-        </>)}
+
+                <div className='flex flex-row gap-5'>
+                  {/* Pause or resume button */}
+                  {/*<UsualButton
+                    onClick={pauseOrResumeTimer}
+                    label={paused ? 'Resume' : 'Pause'}
+                    svgIcon={paused ? playOrResumeButton : pauseButton}
+                  />*/}
+
+                  <div onClick={pauseOrResumeTimer}
+                       className='w-full h-16 bg-black rounded-full cursor-pointer select-none'>
+
+                    <div className='w-full h-full flex justify-center items-center'>
+
+                      {/* Icon */}
+                      <img src={paused ? playOrResumeButton : pauseButton} className='w-8'/>
+
+                    </div>
+                  </div>
+
+                  {/* Cancel button */}
+                  <div onClick={() => {}}
+                       className='w-full h-16 bg-red-700 rounded-full cursor-pointer select-none'>
+
+                    <div className='w-full h-full flex justify-center items-center'>
+
+                      {/* Icon */}
+                      <img src={cancelButton} className='w-8'/>
+
+                    </div>
+                  </div>
+                </div>
+
+              </>
+            )}
+          </>)}
+      </div>
     </div>
   );
 }
