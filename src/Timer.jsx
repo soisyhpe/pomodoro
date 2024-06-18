@@ -1,6 +1,6 @@
 import './timer.css';
 import {ConfigTimerSection, TimerSection} from "./components/TimerSection.jsx";
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, isValidElement} from 'react';
 import {UsualButton} from "./components/Button.jsx";
 import playOrResumeButton from './assets/play_button.svg';
 import pauseButton from './assets/pause_button.svg';
@@ -8,112 +8,144 @@ import cancelButton from './assets/cancel_button.svg';
 
 function Timer() {
 
-  ///User input
-  const [workingTime, setWorkingTime] = useState(25 * 60);
-  const [breakDuration, setBreakDuration] = useState(5 * 60);
+  //////////////////////// Const and States
+
+  ///User input initial values to be stored
+  const [workingTime, setWorkingTime] = useState(5);
+  const [breakDuration, setBreakDuration] = useState( 5);
   const [roundCount, setRoundCount] = useState(4);
+  const countdownConst=2
 
-  //states
-  const [unstarted, setUnstarted] = useState(true);
-  const [started, setStarted] = useState(false);
-  const [paused, setPaused] = useState(false);
+  // pages
+  const [countdownPage,setCountdownPage]= useState(false);
+  const [homeScreen,setHomeScreen]=useState(true);
+  const [breakPage,setBreakPage]=useState(false)
 
-  //Retrieval of user input and use of it
-  const [remainingTime, setRemainingTime] = useState(workingTime);
+  //Main states
+  const [paused,setPaused]=useState(false)
+  const [started,setStarted]=useState(false)
+
+  //remaining times
+  const [remainingWorkTime, setRemainingWorkTime]=useState(workingTime);
   const [remainingBreakTime, setRemainingBreakTime] = useState(breakDuration);
-  const [remainingRounds, setRemainingRounds] = useState(roundCount);
+  const [remainingRounds, setRemainingRounds]=useState(roundCount);
+  const [countdown, setCountdown]=useState(countdownConst)
 
-  //BreakTime && delayedStart
-  const [isBreak, setIsBreak] = useState(false);
-  const [isDelayed, setIsDelayed] = useState(false);
-  const countdownConstant = 3
-  const [countdown, setCountdown] = useState(countdownConstant);
-  const [reducableRound, setReducableRound] = useState(false);
-  const [end, setEnd] = useState(false);
+  //end and new ends
+  const [workEnd, setWorkEnd]=useState(new Date().getTime())
+  const [breakEnd, setBreakEnd]=useState(new Date().getTime())
 
+  // workTime && beaktime timer
+  // useEffect(() => {
+  //   if (started){
 
-  const startTimer = () => {
-    setIsDelayed(true);
-    setRemainingRounds(roundCount);
-    setRemainingTime(workingTime);
-  }
+  //     //casual behavior
+  //     if (!paused) {
+  //       workEnd==null && setWorkEnd(new Date().getTime()+remainingWorkTime*1000)
+  //       breakEnd==null && setBreakEnd(new Date().getTime()+remainingBreakTime*1000)
+  //       const interval = setInterval(() => {
+  //         !breakPage && setRemainingWorkTime((workEnd - new Date().getTime()) / 1000);
+  //         if(!breakPage && remainingWorkTime<=1){setBreakEnd(new Date().getTime()+breakDuration*1000); setBreakPage(true) ;}
+  //         breakPage && setRemainingBreakTime((breakEnd - new Date().getTime()) / 1000);
+  //         if(breakPage && remainingBreakTime<=1) { setWorkEnd(new Date().getTime()+workingTime*1000);setBreakPage(false); setRemainingRounds(remainingRounds-1)};
+  //         if(remainingRounds<1 && breakPage){setHomeScreen(true);setStarted(false);setCountdown(countdownConst)}
+  //       }, 100);
+  //       return () => clearInterval(interval);
+  //     }
+        
+  //     //behaviour on pause
+  //     paused && workEnd !=null && !breakPage && setRemainingWorkTime((workEnd - new Date().getTime()) / 1000)
+  //     paused && workEnd !=null && !breakPage && setWorkEnd(null);
+  //     paused && breakEnd !=null && breakPage && setRemainingBreakTime((breakEnd - new Date().getTime()) / 1000);
+  //     paused && breakEnd !=null && breakPage && setBreakEnd(null);
 
-  const pauseOrResumeTimer = () => {
-    setPaused(!paused);
-  }
-
-  const roundPatch = () => {
-    if (reducableRound) {
-      setRemainingRounds((rounds) => rounds - 1);
-      if (remainingRounds == 1) logicalEnd();
-    }
-
-    setReducableRound(false);
-  }
-
-  const logicalEnd = () => {
-    setUnstarted(true);
-    setStarted(false);
-    setIsBreak(false);
-    setRemainingRounds(roundCount)
-  }
-
-
+  // }}, [paused, workEnd, remainingWorkTime, breakEnd, remainingBreakTime, breakPage, remainingRounds]);
   useEffect(() => {
-    if (isDelayed) {
-      const isDelayedIntervalId = setInterval(() => {
-        setCountdown((count) => {
-          if (count <= 0) {
-            setIsDelayed(false)
-            setUnstarted(false);
-            setStarted(true);
-            clearInterval(isDelayedIntervalId);
-            return countdownConstant;
+    let interval;
+  
+    if (started && !paused) {
+      if (workEnd === null)setWorkEnd(new Date().getTime() + remainingWorkTime * 1000);
+      if (breakEnd === null)setBreakEnd(new Date().getTime() + remainingBreakTime * 1000);
+      interval = setInterval(() => {
+        if (!breakPage) {
+          const newRemainingWorkTime = (workEnd - new Date().getTime()) / 1000;
+          setRemainingWorkTime(newRemainingWorkTime);
+          if (newRemainingWorkTime <= 1) {
+            setBreakEnd(new Date().getTime() + breakDuration * 1000);
+            setBreakPage(true);
           }
-          return --count;
-        })
-      }, 1000)
-    }
-    if (!unstarted && !isBreak) {
-      const remainingTimeIntervalId = setInterval(() => {
-        setRemainingTime((remainT) => {
-          if (remainT <= 0 && !paused) {
-            setIsBreak(true);
-            setRemainingBreakTime(breakDuration);
-            clearInterval(remainingTimeIntervalId);
-            console.log(remainingTimeIntervalId);
-            setReducableRound(true);
+        } else {
+          const newRemainingBreakTime = (breakEnd - new Date().getTime()) / 1000;
+          setRemainingBreakTime(newRemainingBreakTime);
+          if (newRemainingBreakTime <= 1) {
+            setWorkEnd(new Date().getTime() + workingTime * 1000);
+            setBreakPage(false);
+            setRemainingRounds(prevRounds => prevRounds - 1);
           }
-          return paused ? remainT : remainT - 1
-        });
-      }, 1000);
-      return () => clearInterval(remainingTimeIntervalId);
+        }
+  
+        if (remainingRounds < 1 && breakPage) {
+          setHomeScreen(true);
+          setStarted(false);
+          setCountdown(countdownConst);
+        }
+      }, 100);
     }
-    if (isBreak) {
-      roundPatch();
-      const remainingBreakTimeIntervalId = setInterval(() => {
-        setRemainingBreakTime((remainB) => {
-          if (remainB <= 0 && !paused) {
-            setIsBreak(false);
-            setRemainingTime(workingTime);
-            clearInterval(remainingBreakTimeIntervalId);
-          }
-          return paused ? remainB : remainB - 1;
-        });
-      }, 1000);
-      return () => clearInterval(remainingBreakTimeIntervalId);
-    }
-  }, [isBreak, paused, isDelayed])
+      paused && workEnd !== null && !breakPage && setRemainingWorkTime((workEnd - new Date().getTime()) / 1000);
+      paused && workEnd !== null && !breakPage && setWorkEnd(null);
+      paused && breakEnd !== null && breakPage && setRemainingBreakTime((breakEnd - new Date().getTime()) / 1000);
+      paused && breakEnd !== null && breakPage && setBreakEnd(null);
+    return () => clearInterval(interval);
+  }, [started, paused, breakPage, workEnd, breakEnd, remainingRounds, remainingWorkTime, remainingBreakTime, breakDuration, workingTime, countdownConst]);
+  
+
+  //dsistributer de chocolats 
+  // pharmacien 5 ans 
+  // réseau de distribueurs au Ghana
+  // cible = 50 milllions et 100 millions pays anglophones 
+  // N1
+
+  const pauseOrResumeTimer=()=>setPaused(!paused)
+
+  function startTimer(){setCountdownPage(true);}
+  useEffect(() => {
+    if (countdownPage){
+    const isDelayedIntervalId = setInterval(() => {
+      setCountdown((count) => {
+        if (count <= 1) {
+          setCountdownPage(false)
+          setHomeScreen(false);
+          setStarted(true);
+          setBreakPage(false);
+          setRemainingRounds(roundCount)
+          clearInterval(isDelayedIntervalId);
+          setWorkEnd(new Date().getTime()+workingTime*1000)
+          setBreakEnd(new Date().getTime()+breakDuration*1000)
+          return 0;
+        }
+        return --count;
+      })
+    }, 1000)}},[countdownPage]) 
+
+  /////////////////////////////Event Listener
+  
+  
+  //fullscreen
+  document.addEventListener("keydown",
+    (event)=>{event.key==='f' && (document.fullscreenElement? document.exitFullscreen():document.body.requestFullscreen())})
+
+  // pause/play  
+  document.addEventListener("keydown", function(event){event.key==='k' && setPaused(!paused)})
 
 
   return (
     <div className='min-w-screen min-h-screen flex flex-col justify-center items-center '>
       <div className='w-72 flex flex-col gap-10'>
-        {isDelayed ? (
+        {countdownPage ? (
           <div className='font-bold text-black text-8xl text-center'>{countdown}</div>
         ) : (
           <>
-            {unstarted && (
+            {homeScreen && (
               <>
                 <ConfigTimerSection
                   title='Work duration'
@@ -153,20 +185,20 @@ function Timer() {
               </>
             )}
 
-            {started && (
+            {!homeScreen && (
               <>
-                {!isBreak && (
+                {!breakPage && (
                   <TimerSection
                     title='Work'
-                    getter={remainingTime}
+                    getter={Math.floor(remainingWorkTime)}
                     isTimer={true}
                   />
                 )}
 
-                {isBreak && remainingRounds > 0 && (
+                {breakPage && (
                   <TimerSection
                     title='Break'
-                    getter={remainingBreakTime}
+                    getter={Math.floor(remainingBreakTime)}
                     isTimer={true}
                   />
                 )}
@@ -178,12 +210,6 @@ function Timer() {
                 />
 
                 <div className='flex flex-row gap-5'>
-                  {/* Pause or resume button */}
-                  {/*<UsualButton
-                    onClick={pauseOrResumeTimer}
-                    label={paused ? 'Resume' : 'Pause'}
-                    svgIcon={paused ? playOrResumeButton : pauseButton}
-                  />*/}
 
                   <div onClick={pauseOrResumeTimer}
                        className='w-full h-16 bg-black rounded-full cursor-pointer select-none'>
