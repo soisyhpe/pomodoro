@@ -1,241 +1,224 @@
 import './timer.css';
-import Button from "./Button.jsx";
-import React, { useRef, useState, useEffect } from 'react';
-
-
-const formatTime = (time) => {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-};
-
-const ConfigTimerSection = ({ title, getter, setter, maxValue, minValue, isTimer }) => {
-  const isMinValueReached = getter <= (isTimer ? minValue * 60 : minValue);
-  const isMaxValueReached = getter >= (isTimer ? maxValue * 60 : maxValue);
-
-  return (
-    <div className='w-72 mb-10'>
-      <h1 className='font-black text-4xl'>{title}</h1>
-      <p className='font-bold text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
-      <div className='flex items-stretch'>
-        <Button
-          onClick={() =>
-            setter((previousValue) =>
-              Math.max(
-                previousValue - (isTimer ? minValue * 60 : minValue),
-                isTimer ? minValue * 60 : minValue
-              )
-            )
-          }
-          label={`-${minValue}`}
-          isDisabled={isMinValueReached}
-        />
-        <Button
-          onClick={() =>
-            setter((previousValue) =>
-              Math.min(
-                previousValue + (isTimer ? minValue * 60 : minValue),
-                isTimer ? maxValue * 60 : maxValue
-              )
-            )
-          }
-          label={`+${minValue}`}
-          isDisabled={isMaxValueReached}
-        />
-      </div>
-    </div>
-  );
-};
-
-const TimerSection = ({ title, getter, isTimer }) => {
-  return (
-    <div className='w-72 mb-10'>
-      <h1 className='font-black text-4xl'>{title}</h1>
-      <p className='font-bold text-8xl'>{isTimer ? formatTime(getter) : getter}</p>
-    </div>
-  );
-};
+import {ConfigTimerSection, TimerSection} from "./components/TimerSection.jsx";
+import React, { useState, useEffect} from 'react';
+import {UsualButton} from "./components/Button.jsx";
+import playOrResumeButton from './assets/play_button.svg';
+import pauseButton from './assets/pause_button.svg';
+import cancelButton from './assets/cancel_button.svg';
 
 function Timer() {
 
-  ///User input 
-  const [workingTime, setWorkingTime] = useState(25 * 60);
-  const [breakDuration, setBreakDuration] = useState(5 * 60);
-  const [round, setRound] = useState(3);
+  //////////////////////// Const and States
 
-  //states
-  const [unstarted, setUnstarted] = useState(true);
-  const [started, setStarted] = useState(false);
-  const [paused, setPaused] = useState(false);
+  ///User input initial values to be stored
+  const [workingTime, setWorkingTime] = useState(5*60);
+  const [breakDuration, setBreakDuration] = useState(5*60);
+  const [roundCount, setRoundCount] = useState(4);
+  const countdownConst=3
 
-  //Retrieval of user input and use of it
-  const [remainingTime, setRemainingTime] = useState(workingTime);
+  // pages
+  const [countdownPage,setCountdownPage]= useState(false);
+  const [homeScreen,setHomeScreen]=useState(true);
+  const [breakPage,setBreakPage]=useState(false)// break page is equal to false when the work screen should be showing and true when it's break time
+
+  //Main states
+  const [paused,setPaused]=useState(false) 
+  const [started,setStarted]=useState(false)
+
+  //remaining times
+  const [remainingWorkTime, setRemainingWorkTime]=useState(workingTime);
   const [remainingBreakTime, setRemainingBreakTime] = useState(breakDuration);
-  const [remainingRounds, setRemainingRounds] = useState(round);
+  const [remainingRounds, setRemainingRounds]=useState(roundCount);
+  const [countdown, setCountdown]=useState(countdownConst)
 
-  //BreakTime && delayedStart
-  const [isBreak, setIsBreak] = useState(false);
-  const [isDelayed, setIsDelayed] = useState(false);
-  const countdownConstant = 3
-  const [countdown, setCountdown] = useState(countdownConstant);
-  const [reducableRound, setReducableRound] = useState(false);
-  const [end, setEnd] = useState(false);
+  //end and new ends
+  const [workEnd, setWorkEnd]=useState(new Date().getTime())
+  const [breakEnd, setBreakEnd]=useState(new Date().getTime())
 
 
-  const startTimer = () => {
-    setIsDelayed(true);
-    setRemainingRounds(round);
-    setRemainingTime(workingTime);
-  }
-
-  const pauseOrResumeTimer = () => {
-    setPaused(!paused);
-  }
-
-  const roundPatch = () => {
-    if (reducableRound) {
-      setRemainingRounds((rounds) => rounds - 1);
-      if (remainingRounds == 1) logicalEnd();
-    }
-
-    setReducableRound(false);
-  }
-
-  const logicalEnd = () => {
-    setUnstarted(true);
-    setStarted(false);
-    setIsBreak(false);
-    setRemainingRounds(round)
-  }
 
 
+//////////////////////////////functions
   useEffect(() => {
-    if (isDelayed) {
-      const isDelayedIntervalId = setInterval(() => {
-        setCountdown((count) => {
-          if (count <= 0) {
-            setIsDelayed(false)
-            setUnstarted(false);
-            setStarted(true);
-            clearInterval(isDelayedIntervalId);
-            return countdownConstant;
+    let interval;
+  
+    ///casual behaviour on the beginning of the timer
+    if (started && !paused) {
+      //post-paused behaviour - initilizing variables 
+      workEnd === null && setWorkEnd(new Date().getTime() + remainingWorkTime * 1000);
+      breakEnd === null && setBreakEnd(new Date().getTime() + remainingBreakTime * 1000);
+
+
+      interval = setInterval(() => {
+        if (!breakPage) {
+          const newRemainingWorkTime = (workEnd - new Date().getTime()) / 1000;
+          setRemainingWorkTime(newRemainingWorkTime);
+          if (newRemainingWorkTime <= 1) {
+            setBreakEnd(new Date().getTime() + breakDuration * 1000);
+            setBreakPage(true);
           }
-          return --count;
-        })
-      }, 1000)
-    }
-    if (!unstarted && !isBreak) {
-      const remainingTimeIntervalId = setInterval(() => {
-        setRemainingTime((remainT) => {
-          if (remainT <= 0 && !paused) {
-            setIsBreak(true);
-            setRemainingBreakTime(breakDuration);
-            clearInterval(remainingTimeIntervalId);
-            console.log(remainingTimeIntervalId);
-            setReducableRound(true);
+        } else {
+          const newRemainingBreakTime = (breakEnd - new Date().getTime()) / 1000;
+          setRemainingBreakTime(newRemainingBreakTime);
+          if (newRemainingBreakTime <= 1) {
+            setWorkEnd(new Date().getTime() + workingTime * 1000);
+            setBreakPage(false);
+            setRemainingRounds(prevRounds => prevRounds - 1);
           }
-          return paused ? remainT : remainT - 1
-        });
-      }, 1000);
-      return () => clearInterval(remainingTimeIntervalId);
+        }
+        //behaviour on end of timer
+        if (remainingRounds < 1 && breakPage) {
+          setHomeScreen(true);
+          setStarted(false);
+        }
+      }, 100);
     }
-    if (isBreak) {
-      roundPatch();
-      const remainingBreakTimeIntervalId = setInterval(() => {
-        setRemainingBreakTime((remainB) => {
-          if (remainB <= 0 && !paused) {
-            setIsBreak(false);
-            setRemainingTime(workingTime);
-            clearInterval(remainingBreakTimeIntervalId);
-          }
-          return paused ? remainB : remainB - 1;
-        });
-      }, 1000);
-      return () => clearInterval(remainingBreakTimeIntervalId);
-    }
-  }, [isBreak, paused, isDelayed])
+
+    // behaviour on the paused timer
+      paused && workEnd !== null && !breakPage && setRemainingWorkTime((workEnd - new Date().getTime()) / 1000);
+      paused && workEnd !== null && !breakPage && setWorkEnd(null);
+      paused && breakEnd !== null && breakPage && setRemainingBreakTime((breakEnd - new Date().getTime()) / 1000);
+      paused && breakEnd !== null && breakPage && setBreakEnd(null);
+    return () => clearInterval(interval);
+  }, [started, paused, breakPage, workEnd, breakEnd, remainingRounds, remainingWorkTime, remainingBreakTime, breakDuration, workingTime, countdownConst]);
+
+  //pause and cancel buttons
+  const pauseOrResumeTimer=()=>setPaused(!paused)
+  const exitTimer=()=>setHomeScreen(true)
+
+  //start the timer
+  const startTimer=()=>setCountdownPage(true);
+
+  // Initializing all the states for the timer start and initiating the countdown
+  useEffect(() => {
+    if (countdownPage){
+      setCountdown(countdownConst)
+    const isDelayedIntervalId = setInterval(() => {
+      setCountdown((count) => {
+        if (count <= 1) {
+          setCountdownPage(false)
+          setHomeScreen(false);
+          setStarted(true);
+          setBreakPage(false);
+          setRemainingRounds(roundCount)
+          clearInterval(isDelayedIntervalId);
+          setWorkEnd(new Date().getTime()+workingTime*1000)
+          setBreakEnd(new Date().getTime()+breakDuration*1000)
+          return 0;
+        }
+        return --count;
+      })
+    }, 1000)}},[countdownPage]) 
+
+  /////////////////////////////Event Listeners
+  //fullscreen
+  document.addEventListener("keydown",(event)=>{event.key==='f' && (document.fullscreenElement? document.exitFullscreen():document.body.requestFullscreen())})
+
+  // pause/play  
+  document.addEventListener("keydown", function(event){event.key==='k' && setPaused(!paused)})
 
 
   return (
-    <div className='min-h-screen min-w-screen flex flex-col items-center justify-center'>
-      {isDelayed ? (
-        <p className='font-bold text-8xl mt-3'>{countdown}</p>
-      ) : (
-        <>
-          {unstarted && (
-            <>
-              <ConfigTimerSection
-                title='Working time'
-                getter={workingTime}
-                setter={setWorkingTime}
-                maxValue={60}
-                minValue={5}
-                isTimer={true}
-              />
+    <div className='min-w-screen min-h-screen flex flex-col justify-center items-center '>
+      <div className='w-72 flex flex-col gap-10'>
+        {countdownPage ? (
+          <div className='font-bold text-black text-8xl text-center'>{countdown}</div>
+        ) : (
+          <>
+            {homeScreen && (
+              <>
+                <ConfigTimerSection
+                  title='Work duration'
+                  getter={workingTime}
+                  setter={setWorkingTime}
+                  maxValue={60}
+                  minValue={1}
+                  isTimer={true}
+                  isDisabled={false}
+                />
 
-              {round > 1 && (
                 <ConfigTimerSection
                   title='Break duration'
                   getter={breakDuration}
                   setter={setBreakDuration}
                   maxValue={60}
-                  minValue={5}
+                  minValue={1}
                   isTimer={true}
+                  isDisabled={roundCount <= 1}
                 />
-              )}
-              <ConfigTimerSection title='Round' getter={round} setter={setRound} maxValue={10} minValue={1} isTimer={false} />
-              <div className='w-72'>
-                <button
-                  onClick={startTimer}
-                  className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-                >Start
-                </button>
-              </div>
-            </>
-          )}
 
-          {started && (
-            <>
-              {!isBreak && (
-                <TimerSection
-                  title='Remaining time'
-                  getter={remainingTime}
-                  isTimer={true}
-                />)}
-              {isBreak && remainingRounds > 0 && (
-                <>
+                <ConfigTimerSection
+                  title='Round count'
+                  getter={roundCount}
+                  setter={setRoundCount}
+                  maxValue={10}
+                  minValue={1}
+                  isTimer={false}
+                  isDisabled={false}
+                />
+
+                <UsualButton
+                  onClick={startTimer}
+                  label='Start'
+                  svgIcon={playOrResumeButton}
+                />
+              </>
+            )}
+
+            {!homeScreen && (
+              <>
+                {!breakPage && (
                   <TimerSection
-                    title='Remaining break time'
-                    getter={remainingBreakTime}
+                    title='Work'
+                    getter={Math.floor(remainingWorkTime)}
                     isTimer={true}
                   />
+                )}
+
+                {breakPage && (
                   <TimerSection
-                    title='Remaining rounds'
-                    getter={remainingRounds}
-                    isTimer={false}
+                    title='Break'
+                    getter={Math.floor(remainingBreakTime)}
+                    isTimer={true}
                   />
-                </>
-              )}
-              {!isBreak && remainingRounds == 1 && (
-                <>
-                  <TimerSection
-                    title=''
-                    getter={'Last round '}
-                    isTimer={false}
-                  />
-                </>
-              )}
-              <div className='w-72'>
-                <button
-                  onClick={pauseOrResumeTimer}
-                  className='bg-gray-900 text-white w-full h-16 rounded-full font-bold text-4xl p-0 m-0'
-                >
-                  {paused ? 'Resume' : 'Pause'}
-                </button>
-              </div>
-            </>
-          )}
-        </>)}
+                )}
+
+                <TimerSection
+                  title='Round'
+                  getter={`${roundCount - remainingRounds}/${roundCount}`}
+                  isTimer={false}
+                />
+
+                <div className='flex flex-row gap-5'>
+
+                  <div onClick={pauseOrResumeTimer}
+                       className='w-full h-16 bg-black rounded-full cursor-pointer select-none'>
+
+                    <div className='w-full h-full flex justify-center items-center'>
+
+                      {/* Icon */}
+                      <img src={paused ? playOrResumeButton : pauseButton} className='w-8'/>
+
+                    </div>
+                  </div>
+
+                  {/* Cancel button */} 
+                  <div onClick={exitTimer } 
+                       className='w-full h-16 bg-red-700 rounded-full cursor-pointer select-none'>
+
+                    <div className='w-full h-full flex justify-center items-center'>
+
+                      {/* Icon */}
+                      <img src={cancelButton} className='w-8'/>
+
+                    </div>
+                  </div>
+                </div>
+
+              </>
+            )}
+          </>)}
+      </div>
     </div>
   );
 }
