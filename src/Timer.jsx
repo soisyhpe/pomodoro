@@ -1,6 +1,6 @@
 import './timer.css';
 import {ConfigTimerSection, TimerSection} from "./components/TimerSection.jsx";
-import React, {useRef, useState, useEffect, isValidElement} from 'react';
+import React, { useState, useEffect} from 'react';
 import {UsualButton} from "./components/Button.jsx";
 import playOrResumeButton from './assets/play_button.svg';
 import pauseButton from './assets/pause_button.svg';
@@ -11,10 +11,10 @@ function Timer() {
   //////////////////////// Const and States
 
   ///User input initial values to be stored
-  const [workingTime, setWorkingTime] = useState(5);
-  const [breakDuration, setBreakDuration] = useState( 5);
+  const [workingTime, setWorkingTime] = useState(5*60);
+  const [breakDuration, setBreakDuration] = useState(5*60);
   const [roundCount, setRoundCount] = useState(4);
-  const countdownConst=2
+  const countdownConst=3
 
   // pages
   const [countdownPage,setCountdownPage]= useState(false);
@@ -35,31 +35,6 @@ function Timer() {
   const [workEnd, setWorkEnd]=useState(new Date().getTime())
   const [breakEnd, setBreakEnd]=useState(new Date().getTime())
 
-  // workTime && beaktime timer
-  // useEffect(() => {
-  //   if (started){
-
-  //     //casual behavior
-  //     if (!paused) {
-  //       workEnd==null && setWorkEnd(new Date().getTime()+remainingWorkTime*1000)
-  //       breakEnd==null && setBreakEnd(new Date().getTime()+remainingBreakTime*1000)
-  //       const interval = setInterval(() => {
-  //         !breakPage && setRemainingWorkTime((workEnd - new Date().getTime()) / 1000);
-  //         if(!breakPage && remainingWorkTime<=1){setBreakEnd(new Date().getTime()+breakDuration*1000); setBreakPage(true) ;}
-  //         breakPage && setRemainingBreakTime((breakEnd - new Date().getTime()) / 1000);
-  //         if(breakPage && remainingBreakTime<=1) { setWorkEnd(new Date().getTime()+workingTime*1000);setBreakPage(false); setRemainingRounds(remainingRounds-1)};
-  //         if(remainingRounds<1 && breakPage){setHomeScreen(true);setStarted(false);setCountdown(countdownConst)}
-  //       }, 100);
-  //       return () => clearInterval(interval);
-  //     }
-        
-  //     //behaviour on pause
-  //     paused && workEnd !=null && !breakPage && setRemainingWorkTime((workEnd - new Date().getTime()) / 1000)
-  //     paused && workEnd !=null && !breakPage && setWorkEnd(null);
-  //     paused && breakEnd !=null && breakPage && setRemainingBreakTime((breakEnd - new Date().getTime()) / 1000);
-  //     paused && breakEnd !=null && breakPage && setBreakEnd(null);
-
-  // }}, [paused, workEnd, remainingWorkTime, breakEnd, remainingBreakTime, breakPage, remainingRounds]);
   useEffect(() => {
     let interval;
   
@@ -106,10 +81,12 @@ function Timer() {
   // N1
 
   const pauseOrResumeTimer=()=>setPaused(!paused)
+  // const exitTimer=()=>setHomeScreen(true)
 
   function startTimer(){setCountdownPage(true);}
   useEffect(() => {
     if (countdownPage){
+      setCountdown(countdownConst)
     const isDelayedIntervalId = setInterval(() => {
       setCountdown((count) => {
         if (count <= 1) {
@@ -222,8 +199,8 @@ function Timer() {
                     </div>
                   </div>
 
-                  {/* Cancel button */}
-                  <div onClick={() => {}}
+                  {/* Cancel button */} 
+                  <div  
                        className='w-full h-16 bg-red-700 rounded-full cursor-pointer select-none'>
 
                     <div className='w-full h-full flex justify-center items-center'>
