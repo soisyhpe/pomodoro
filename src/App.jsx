@@ -111,7 +111,7 @@ function App() {
 
 
   return (
-    <div className='min-w-screen min-h-screen flex flex-col justify-center items-center '>
+    <div className='min-w-screen min-h-screen flex flex-col justify-center items-center bg-white'>
       <div className='w-72 flex flex-col gap-10'>
         {countdownPage ? (
           <div className='font-bold text-black text-8xl text-center'>{countdown}</div>
