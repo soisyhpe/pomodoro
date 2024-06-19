@@ -35,42 +35,58 @@ function Timer() {
   const [workEnd, setWorkEnd]=useState(new Date().getTime())
   const [breakEnd, setBreakEnd]=useState(new Date().getTime())
 
+// Functions needed
+    //behaviour for the end of the workTime Transition work->break
+    const checkRemainingWorkTime=(newRemainingWorkTime)=>{
+      if (newRemainingWorkTime <= 1) {
+      setBreakEnd(new Date().getTime() + breakDuration * 1000);
+      setBreakPage(true);
+    }}
 
+    //behaviour for the end of the breakTime Transition break->work
+    const checkRemainingBreakTime=(newRemainingBreakTime)=>{if (newRemainingBreakTime <= 1) {
+      setWorkEnd(new Date().getTime() + workingTime * 1000);
+      setBreakPage(false);
+      setRemainingRounds(prevRounds => prevRounds - 1);
+    }}
+  
+    //behaviour on end of timer
+    const checkEndofTimer=()=>{ 
+    if (remainingRounds < 1 && breakPage) {
+      setHomeScreen(true);
+      setStarted(false);
+    }}
 
+    //setting the new remaining Time according to the breakPage variable 
+    const resumeTimer=()=>{
+    if (breakPage) {
+      const newRemainingBreakTime = (breakEnd - new Date().getTime()) / 1000;
+      setRemainingBreakTime(newRemainingBreakTime);
+      checkRemainingBreakTime(newRemainingBreakTime);
+    } else {
+      const newRemainingWorkTime = (workEnd - new Date().getTime()) / 1000;
+      setRemainingWorkTime(newRemainingWorkTime);
+      checkRemainingWorkTime(newRemainingWorkTime);
+    }}
+    
+  //pause and cancel buttons
+  const pauseOrResumeTimer=()=>setPaused(!paused)
+  const exitTimer=()=>setHomeScreen(true)
 
-//////////////////////////////functions
+  //start the timer
+  const startTimer=()=>setCountdownPage(true);
+
+//////////////////////////////Functions
   useEffect(() => {
     let interval;
-  
-    ///casual behaviour on the beginning of the timer
+    ///casual behaviour on the beginning of the timer and resume of pause - basically when the timer is running
     if (started && !paused) {
-      //post-paused behaviour - initilizing variables 
+      //post-paused behaviour - initializing variables 
       workEnd === null && setWorkEnd(new Date().getTime() + remainingWorkTime * 1000);
       breakEnd === null && setBreakEnd(new Date().getTime() + remainingBreakTime * 1000);
-
-
       interval = setInterval(() => {
-        if (!breakPage) {
-          const newRemainingWorkTime = (workEnd - new Date().getTime()) / 1000;
-          setRemainingWorkTime(newRemainingWorkTime);
-          if (newRemainingWorkTime <= 1) {
-            setBreakEnd(new Date().getTime() + breakDuration * 1000);
-            setBreakPage(true);
-          }
-        } else {
-          const newRemainingBreakTime = (breakEnd - new Date().getTime()) / 1000;
-          setRemainingBreakTime(newRemainingBreakTime);
-          if (newRemainingBreakTime <= 1) {
-            setWorkEnd(new Date().getTime() + workingTime * 1000);
-            setBreakPage(false);
-            setRemainingRounds(prevRounds => prevRounds - 1);
-          }
-        }
-        //behaviour on end of timer
-        if (remainingRounds < 1 && breakPage) {
-          setHomeScreen(true);
-          setStarted(false);
-        }
+      resumeTimer()
+      checkEndofTimer()
       }, 100);
     }
 
@@ -82,17 +98,11 @@ function Timer() {
     return () => clearInterval(interval);
   }, [started, paused, breakPage, workEnd, breakEnd, remainingRounds, remainingWorkTime, remainingBreakTime, breakDuration, workingTime, countdownConst]);
 
-  //pause and cancel buttons
-  const pauseOrResumeTimer=()=>setPaused(!paused)
-  const exitTimer=()=>setHomeScreen(true)
-
-  //start the timer
-  const startTimer=()=>setCountdownPage(true);
 
   // Initializing all the states for the timer start and initiating the countdown
   useEffect(() => {
     if (countdownPage){
-      setCountdown(countdownConst)
+    setCountdown(countdownConst)
     const isDelayedIntervalId = setInterval(() => {
       setCountdown((count) => {
         if (count <= 1) {
