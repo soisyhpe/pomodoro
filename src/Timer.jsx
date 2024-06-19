@@ -72,16 +72,9 @@ function Timer() {
       paused && breakEnd !== null && breakPage && setBreakEnd(null);
     return () => clearInterval(interval);
   }, [started, paused, breakPage, workEnd, breakEnd, remainingRounds, remainingWorkTime, remainingBreakTime, breakDuration, workingTime, countdownConst]);
-  
-
-  //dsistributer de chocolats 
-  // pharmacien 5 ans 
-  // réseau de distribueurs au Ghana
-  // cible = 50 milllions et 100 millions pays anglophones 
-  // N1
 
   const pauseOrResumeTimer=()=>setPaused(!paused)
-  // const exitTimer=()=>setHomeScreen(true)
+  const exitTimer=()=>setHomeScreen(true)
 
   function startTimer(){setCountdownPage(true);}
   useEffect(() => {
@@ -200,7 +193,7 @@ function Timer() {
                   </div>
 
                   {/* Cancel button */} 
-                  <div  
+                  <div onClick={exitTimer } 
                        className='w-full h-16 bg-red-700 rounded-full cursor-pointer select-none'>
 
                     <div className='w-full h-full flex justify-center items-center'>
